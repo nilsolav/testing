@@ -1,1 +1,1 @@
-This is a test file for GIT
+This is a test file for GIT. This is the branch version
