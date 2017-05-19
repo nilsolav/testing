@@ -102,6 +102,11 @@ tableout.Comment = stringVectors(:,7);
 time = datenum(tableout.Date)+tableout.Time;
 % parse the comment line
 
+for i=1:size(tableout,1)
+    lat(i)=str2num(tableout.Latitude{i}(1:2))+str2num(tableout.Latitude{i}(3:end-2))/60;
+    lon(i)=str2num(tableout.Longitude{i}(1:2))+str2num(tableout.Longitude{i}(3:end-2))/60;
+end
+
 %% Get all utsetting
 for i=1:length(tableout.Comment)
     str=tableout.Comment{i};
@@ -121,11 +126,17 @@ for i=1:length(tableout.Comment)
         if ind(i).start
             deployment(ind(i).deployment).deployment = ind(i).deployment;
             deployment(ind(i).deployment).transect(ind(i).transect).transect = ind(i).transect;
-            deployment(ind(i).deployment).transect(ind(i).transect).start = time(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).start.time = time(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).start.lat = lat(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).start.lon = lon(i);
         elseif ind(i).stop
-            deployment(ind(i).deployment).transect(ind(i).transect).stop = time(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).stop.time = time(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).stop.lat = lat(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).stop.lon = lon(i);
         elseif ind(i).passering
-            deployment(ind(i).deployment).transect(ind(i).transect).passering = time(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).passing.time = time(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).passing.lat = lat(i);
+            deployment(ind(i).deployment).transect(ind(i).transect).passing.lon = lon(i);
         end
     end
 end
