@@ -1,4 +1,4 @@
-function [tableout,deployment,time,shalecircle] = REDUStokt_readmetadata(workbookFile,sheetName,startRow,endRow)
+function [tableout,deployment,time] = REDUStokt_readmetadata(workbookFile,sheetName,startRow,endRow)
 %IMPORTFILE Import data from a spreadsheet
 %   DATA = IMPORTFILE(FILE) reads data from the first worksheet in the
 %   Microsoft Excel spreadsheet file named FILE and returns the data as a
@@ -155,16 +155,16 @@ for i=1:length(tableout.Comment)
     shalecirclenum = regexp(str,mstr,'tokens');
     
     if ~isempty(shalecirclenum)&&ind2(i).shalecircle
-        ind2(i).deployment = str2num(shalecirclenum{1}{1})-4;
+        ind2(i).deployment = str2num(shalecirclenum{1}{1});
         if ind2(i).opptak
-            shalecircle(ind2(i).opptak).deployment = ind2(i).deployment;
-            shalecircle(ind2(i).deployment).opptak.time = time(i);
-            shalecircle(ind2(i).deployment).opptak.lat = lat(i);
-            shalecircle(ind2(i).deployment).opptak.lon = lon(i);
+            deployment(ind2(i).deployment).transect(1).deployment = ind2(i).deployment;
+            deployment(ind2(i).deployment).transect(1).stop.time = time(i);
+            deployment(ind2(i).deployment).transect(1).stop.lat = lat(i);
+            deployment(ind2(i).deployment).transect(1).stop.lon = lon(i);
         elseif ind(i).utsetting
-            shalecircle(ind2(i).deployment).utsetting.time = time(i);
-            shalecircle(ind2(i).deployment).utsetting.lat = lat(i);
-            shalecircle(ind2(i).deployment).utsetting.lon = lon(i);
+            deployment(ind2(i).deployment).transect(1).start.time = time(i);
+            deployment(ind2(i).deployment).transect(1).start.lat = lat(i);
+            deployment(ind2(i).deployment).transect(1).start.lon = lon(i);
         end
     end
 end
