@@ -1,4 +1,4 @@
-function wbat = REDUStokt_depthdistributions(wbat,sa,depth_table,exprange)
+function wbat = REDUStokt_depthdistributions(wbat,sa,depth_table,exprange,type)
 % This function creates depth profiles per transect
 
 s=size(sa.sa);
@@ -15,7 +15,6 @@ for i=exprange
         % nederst i vannsøyla)
         %        depth_table(:,1)>t0(1)
         dpth=depth_table(find(depth_table(:,1)<t0(1),1, 'last' ),2);
-        wbat(i).transect(j).wbat.depth = -(dpth - (1:s(1))*5);
         %disp(wbat(i).transect(j).wbat.depth )
         % Wbat sa values by depth
         %warning('Remove passings!')
@@ -27,6 +26,12 @@ for i=exprange
             disp(['No data ',s0,' within ',r0,'. Total data range is ',r1])
         end
         dum = sa.sa(:,tind);
-        wbat(i).transect(j).wbat.sabydepth = mean(dum,2);
+        if strcmp(type,'wbat')
+            wbat(i).transect(j).wbat.sabydepth = mean(dum,2);
+            wbat(i).transect(j).wbat.depth = -(dpth - (1:s(1))*5);
+        elseif strcmp(type,'vessel')
+            wbat(i).transect(j).vessel.sabydepth = mean(dum,2);
+            wbat(i).transect(j).vessel.depth = -10*(1:size(dum,1))+5;
+        end
     end
 end
