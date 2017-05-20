@@ -1,4 +1,4 @@
-function [tableout,deployment,time] = REDUStokt_readmetadata(workbookFile,sheetName,startRow,endRow)
+function [tableout,deployment,time,shalecircle] = REDUStokt_readmetadata(workbookFile,sheetName,startRow,endRow)
 %IMPORTFILE Import data from a spreadsheet
 %   DATA = IMPORTFILE(FILE) reads data from the first worksheet in the
 %   Microsoft Excel spreadsheet file named FILE and returns the data as a
@@ -31,7 +31,7 @@ end
 % If row start and end points are not specified, define defaults
 if nargin <= 3
     startRow = 2;
-    endRow = 122;
+    endRow = 181;
 end
 
 %% Import the data, extracting spreadsheet dates in Excel serial date format
@@ -107,7 +107,7 @@ for i=1:size(tableout,1)
     lon(i)=str2num(tableout.Longitude{i}(1:2))+str2num(tableout.Longitude{i}(3:end-2))/60;
 end
 
-%% Get all utsetting
+%% Get timing for Sindre's roses
 for i=1:length(tableout.Comment)
     str=tableout.Comment{i};
     expression = 'utsetting';
@@ -140,3 +140,35 @@ for i=1:length(tableout.Comment)
         end
     end
 end
+
+%% Get timing for Shales's circles
+for i=1:length(tableout.Comment)
+    str=tableout.Comment{i};
+    expression = 'Shalecircle';
+    ind2(i).shalecircle = ~isempty(regexp(str,expression, 'once'));
+    expression = 'opptak';
+    ind2(i).opptak = ~isempty(regexp(str,expression, 'once'));
+    expression = 'utsetting';
+    ind2(i).utsetting = ~isempty(regexp(str,expression, 'once'));
+    
+    mstr = '.+(\d+)';
+    shalecirclenum = regexp(str,mstr,'tokens');
+    
+    if ~isempty(shalecirclenum)&&ind2(i).shalecircle
+        ind2(i).deployment = str2num(shalecirclenum{1}{1})-4;
+        if ind2(i).opptak
+            shalecircle(ind2(i).opptak).deployment = ind2(i).deployment;
+            shalecircle(ind2(i).deployment).opptak.time = time(i);
+            shalecircle(ind2(i).deployment).opptak.lat = lat(i);
+            shalecircle(ind2(i).deployment).opptak.lon = lon(i);
+        elseif ind(i).utsetting
+            shalecircle(ind2(i).deployment).utsetting.time = time(i);
+            shalecircle(ind2(i).deployment).utsetting.lat = lat(i);
+            shalecircle(ind2(i).deployment).utsetting.lon = lon(i);
+        end
+    end
+end
+
+%% Get timing for transects
+
+
