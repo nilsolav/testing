@@ -31,7 +31,7 @@ for i=exprange
             wbat(i).transect(j).wbat.depth = -(dpth - (1:s(1))*5);
         elseif strcmp(type,'vessel')
             wbat(i).transect(j).vessel.sabydepth = mean(dum,2);
-            wbat(i).transect(j).vessel.depth = -10*(1:size(dum,1))+5;
+            wbat(i).transect(j).vessel.depth = -5*(1:size(dum,1))+2.5;
         end
     end
 end
