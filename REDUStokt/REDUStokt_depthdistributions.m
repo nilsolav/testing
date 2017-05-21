@@ -1,6 +1,10 @@
 function wbat = REDUStokt_depthdistributions(wbat,sa,depth_table,exprange,type)
 % This function creates depth profiles per transect
 
+% This is the time before after the Shale's cirlce where we use the sa data
+% from the vessel 5nmi/speed(nmis/h) /24h
+dt=(5/10)/24;
+
 s=size(sa.sa);
 for i=exprange
     for j=1:length(wbat(i).transect)
@@ -19,7 +23,7 @@ for i=exprange
         % Wbat sa values by depth
         %warning('Remove passings!')
         tind = (t0(1)<sa.time.datenum)&(t0(2)>sa.time.datenum);
-        if isempty(find(tind))
+        if isempty(find(tind))&~strcmp(type,'vesselbeforeafter')
             s0 = ['for deplyment ',num2str(i),', transect ',num2str(j),'.'];
             r0 = ['[',datestr(t0(1)),' to ',datestr(t0(2)),']'];
             r1 = ['[',datestr(sa.time.datenum(1)),' ',datestr(sa.time.datenum(end)),']'];
@@ -32,6 +36,14 @@ for i=exprange
         elseif strcmp(type,'vessel')
             wbat(i).transect(j).vessel.sabydepth = mean(dum,2);
             wbat(i).transect(j).vessel.depth = -5*(1:size(dum,1))+2.5;
+        elseif strcmp(type,'vesselbeforeafter')
+            % Get the data before and after a wbat deplyment.
+            tind_before = (sa.time.datenum<t0(1))&(sa.time.datenum>(t0(1)-dt));
+            tind_after = (sa.time.datenum>t0(2))&(sa.time.datenum<(t0(2)+dt));
+            wbat(i).transect(j).vesselbeforeafter.depth = -5*(1:size(dum,1))+2.5;
+            wbat(i).transect(j).vesselbeforeafter.before.sabydepth = mean(sa.sa(:,tind_before),2);
+            wbat(i).transect(j).vesselbeforeafter.after.sabydepth = mean(sa.sa(:,tind_after),2);
         end
     end
 end
+

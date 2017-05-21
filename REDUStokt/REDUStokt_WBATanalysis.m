@@ -5,10 +5,10 @@ clc
 close all
 % Data directories
 d0 = 'D:\DATA\cruise_data';
-file{1} = fullfile(d0,'\2017\S2017836_PVendla[3670]\OTHER_PLATFORMS\WBAT\LSSS\Reports\ListUserFile04__F200000_T1_L0.0-0.0_HERR.txt');
-file{2} = fullfile(d0,'\2017\S2017836_PVendla[3670]\OTHER_PLATFORMS\WBAT70kHz\LSSS\Reports\ListUserFile04__F070000_T1_L0.0-0.0_HERR.txt');
-file{3} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\1_ListUserFile04__F070000_T1_L3729.7-0.0_HERR.txt');
-file{4} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\1_ListUserFile04__F038000_T2_L3729.7-0.0_HERR.txt');
+file{1} = fullfile(d0,'\2017\S2017836_PVendla[3670]\OBSERVATION_PLATFORMS\WBAT\LSSS\Reports\ListUserFile04__F200000_T1_L0.0-0.0_HERR.txt');
+file{2} = fullfile(d0,'\2017\S2017836_PVendla[3670]\OBSERVATION_PLATFORMS\WBAT70kHz\LSSS\Reports\ListUserFile04__F070000_T1_L0.0-0.0_HERR.txt');
+file{3} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\ListUserFile04__F070000_T1_L3729.7-4774.0_HERR.txt');
+file{4} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\ListUserFile04__F038000_T2_L3729.7-4774.0_HERR.txt');
 
 %% Import data
 % Import wbat sa data
@@ -38,32 +38,10 @@ wbat = REDUStokt_depthdistributions(wbat,sa{1},depth_table,2:3,'wbat');
 wbat = REDUStokt_depthdistributions(wbat,sa{2},depth_table,4:7,'wbat');
 
 %wbat = REDUStokt_depthdistributions(wbat,sa{3},depth_table,2:3,'vessel');
-
-wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,2:7,'vessel');
-
-%% Plot the WBAT star transects
-close all
-figure
-col={'r','b','r','g','c','c','c'};
-
-for i=2:7%length(wbat)
-    meansa=[];
-    hold on
-    for j=1:length(wbat(i).transect)
-        plot(wbat(i).transect(j).wbat.sabydepth,wbat(i).transect(j).wbat.depth,col{i})
-        wbat(i).transect(j).wbat.sabydepth
-        meansa = [meansa wbat(i).transect(j).wbat.sabydepth];
-        [~,nils]=max(wbat(i).transect(j).wbat.sabydepth);
-        if i<5
-            text(wbat(i).transect(j).wbat.sabydepth(nils),wbat(i).transect(j).wbat.depth(nils),num2str(j))
-        else
-            text(wbat(i).transect(j).wbat.sabydepth(nils),wbat(i).transect(j).wbat.depth(nils),num2str(i))
-        end
-    end
-    plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{i},'LineWidth',2)
-end
-title('Blå=utsetting 2, Raud=utsetting 3, green=utsetting 4')
-
+wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,2:4,'vessel');
+% Add the sa depth distribution before and after the wbat data deplyment
+%% (for Shale's cirlces)
+wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,5:7,'vesselbeforeafter');
 
 %% Plot the results
 
@@ -101,4 +79,43 @@ end
     title('Mean')
     xlabel('sa (m^2nmi^{-2})')
     ylabel('depth')
+
+%% Shale's circles
+
+% Plot before/after from vessel acoustics
+
+figure
+%col={'r','b','r','g','c','c','c'};
+
+for i=5:7
+    k=i-4;
+    meansa=[];
+    subplot(2,2,k)
+    hold on
+    for j=1:length(wbat(i).transect)
+        % Wbat data
+        plot(wbat(i).transect(j).wbat.sabydepth,wbat(i).transect(j).wbat.depth,'k')
+        % Vessel data
+        sa1 = wbat(i).transect(j).vesselbeforeafter.before.sabydepth;
+        sa2 = wbat(i).transect(j).vesselbeforeafter.after.sabydepth;
+        sad = wbat(i).transect(j).vesselbeforeafter.depth;
+        plot(sa1,sad,'b',sa2,sad,'r')
+        
+%        meansa = [meansa wbat(i).transect(j).wbat.sabydepth];
+%        [~,nils]=max(wbat(i).transect(j).wbat.sabydepth);
+%        text(wbat(i).transect(j).wbat.sabydepth(nils),wbat(i).transect(j).wbat.depth(nils),num2str(j))
+    end
+%    plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{i},'LineWidth',2)
+    % Metadata
+    title(['Shale''s circle ',num2str(i-4)])
+    xlabel('sa (m^2nmi^{-2})')
+    ylabel('depth')
+    ylim([-100 10])
+%     subplot(2,2,1)
+%     hold on
+%    plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{k},'LineWidth',2)
+end
+%title('Mean')
+xlabel('sa (m^2nmi^{-2})')
+ylabel('depth')
 
