@@ -1,4 +1,5 @@
-%% Master script for analysing the WBAT data
+%% Master script for analysing Sindre's roses data
+
 clear
 clc
 close all
@@ -79,7 +80,7 @@ for i=2:4
     hold on
     for j=1:length(wbat(i).transect)
         % Wbat data
-%        plot(wbat(i).transect(j).wbat.sabydepth,wbat(i).transect(j).wbat.depth,col{i})
+        plot(wbat(i).transect(j).wbat.sabydepth,wbat(i).transect(j).wbat.depth,col{i})
         % Vessel data
         plot(wbat(i).transect(j).vessel.sabydepth,wbat(i).transect(j).vessel.depth,'k')
         
@@ -92,7 +93,7 @@ for i=2:4
     title(['Rose ',num2str(i-1)])
     xlabel('sa (m^2nmi^{-2})')
     ylabel('depth')
-    ylim([-150 10])
+    ylim([-100 10])
     subplot(2,2,1)
     hold on
     plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{i},'LineWidth',2)
