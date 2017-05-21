@@ -34,14 +34,14 @@ depth_table =[datenum(2017,05,14,19,30,00) 58.5;...
     datenum(2017,05,16,19,30,00) 58.5];
 
 %% Get the WBAT and vessel profile per transect for the star experiment (and remove the Vendla passing times)
-wbat = REDUStokt_depthdistributions(wbat,sa{1},depth_table,2:3,'wbat');
-wbat = REDUStokt_depthdistributions(wbat,sa{2},depth_table,4:7,'wbat');
 
+wbat = REDUStokt_depthdistributions(wbat,sa{1},depth_table,2:3,'wbat');
+wbat = REDUStokt_depthdistributions(wbat,sa{2},depth_table,4:8,'wbat');
 %wbat = REDUStokt_depthdistributions(wbat,sa{3},depth_table,2:3,'vessel');
 wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,2:4,'vessel');
-% Add the sa depth distribution before and after the wbat data deplyment
-%% (for Shale's cirlces)
-wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,5:7,'vesselbeforeafter');
+% Add the sa depth distribution before and after the wbat data deployment
+% (for Shale's cirlces)
+wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,5:8,'vesselbeforeafter');
 
 %% Plot the results
 
@@ -87,7 +87,7 @@ end
 figure
 %col={'r','b','r','g','c','c','c'};
 
-for i=5:7
+for i=5:8
     k=i-4;
     meansa=[];
     subplot(2,2,k)
