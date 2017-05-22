@@ -33,6 +33,16 @@ for i=exprange
         if strcmp(type,'wbat')
             wbat(i).transect(j).wbat.sabydepth = mean(dum,2);
             wbat(i).transect(j).wbat.depth = -(dpth - (1:s(1))*5);
+            nilsind = wbat(i).transect(j).wbat.depth>0;
+            if (sum(wbat(i).transect(j).wbat.sabydepth(nilsind))>0)
+                disp(['Wbat ',num2str(i),', transect ',num2str(j),', ',datestr(t0(1)),' ',datestr(t0(2))])
+                nils = find(wbat(i).transect(j).wbat.depth(end-3:end)>0);
+                disp(dpth)
+                disp(wbat(i).transect(j).wbat.depth(nilsind))
+                disp(wbat(i).transect(j).wbat.sabydepth(nilsind)')
+            end
+            wbat(i).transect(j).wbat.sabydepth = wbat(i).transect(j).wbat.sabydepth(~nilsind);
+            wbat(i).transect(j).wbat.depth = wbat(i).transect(j).wbat.depth(~nilsind);
         elseif strcmp(type,'vessel')
             wbat(i).transect(j).vessel.sabydepth = mean(dum,2);
             wbat(i).transect(j).vessel.depth = -5*(1:size(dum,1))+2.5;

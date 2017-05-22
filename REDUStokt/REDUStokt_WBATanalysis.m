@@ -1,3 +1,10 @@
+%% TODO liste
+% - Oppdater WBAT djupn
+% - Korriger for frekvensrespons
+% - Lag finare figurar
+% - Korriger 5 milsmiddel før og etter
+%
+
 %% Master script for analysing Sindre's roses data
 
 clear
@@ -7,8 +14,8 @@ close all
 d0 = 'D:\DATA\cruise_data';
 file{1} = fullfile(d0,'\2017\S2017836_PVendla[3670]\OBSERVATION_PLATFORMS\WBAT\LSSS\Reports\ListUserFile04__F200000_T1_L0.0-0.0_HERR.txt');
 file{2} = fullfile(d0,'\2017\S2017836_PVendla[3670]\OBSERVATION_PLATFORMS\WBAT70kHz\LSSS\Reports\ListUserFile04__F070000_T1_L0.0-0.0_HERR.txt');
-file{3} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\ListUserFile04__F070000_T1_L3729.7-4774.0_HERR.txt');
-file{4} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\ListUserFile04__F038000_T2_L3729.7-4774.0_HERR.txt');
+%file{3} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\ListUserFile04__F070000_T1_L3729.7-5099.0_HERR.txt');
+file{4} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\ListUserFile04__F038000_T2_L3729.7-5099.0_HERR.txt');
 
 %% Import data
 % Import wbat sa data
@@ -19,7 +26,7 @@ file{4} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\L
 
 % Import Vendla sa data
 % 70 kHz
-[sa{3}.dat,sa{3}.sa,sa{3}.time] = REDUStokt_importluf4(file{3});
+%[sa{3}.dat,sa{3}.sa,sa{3}.time] = REDUStokt_importluf4(file{3});
 %38kHz
 [sa{4}.dat,sa{4}.sa,sa{4}.time] = REDUStokt_importluf4(file{4});
 
@@ -28,20 +35,37 @@ metadata_file='D:\DATA\cruise_data\2017\S2017836_PVendla[3670]\CRUISE_LOG\S20178
 [~,wbat,~] = REDUStokt_readmetadata(metadata_file);
 
 %% Depth table for WBAT deployments (taken from the echo sounder files)
-depth_table =[datenum(2017,05,14,19,30,00) 58.5;...
-    datenum(2017,05,14,23,15,00) 69.5;...
-    datenum(2017,05,15,18,40,00) 69.5;...
-    datenum(2017,05,16,19,30,00) 58.5];
+depth_table =[...
+    datenum(2017,05,14,19,30,00) 58.7;...
+    datenum(2017,05,14,22,00,00) 69.3;...
+    datenum(2017,05,15,15,19,00) 68;...
+    datenum(2017,05,16,03,30,00) 58;...
+    datenum(2017,05,16,18,30,00) 60.5;...
+    datenum(2017,05,17,15,10,00) 60.5;...
+    datenum(2017,05,18,19,50,00) 60;...
+    datenum(2017,05,19,01,59,00) 60;...
+    datenum(2017,05,20,16,50,00) 58.8;...
+    datenum(2017,05,21,14,20,00) 103];
+    
+    
 
 %% Get the WBAT and vessel profile per transect for the star experiment (and remove the Vendla passing times)
 
 wbat = REDUStokt_depthdistributions(wbat,sa{1},depth_table,2:3,'wbat');
-wbat = REDUStokt_depthdistributions(wbat,sa{2},depth_table,4:8,'wbat');
-%wbat = REDUStokt_depthdistributions(wbat,sa{3},depth_table,2:3,'vessel');
+wbat = REDUStokt_depthdistributions(wbat,sa{2},depth_table,4:9,'wbat');
 wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,2:4,'vessel');
 % Add the sa depth distribution before and after the wbat data deployment
 % (for Shale's cirlces)
-wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,5:8,'vesselbeforeafter');
+wbat = REDUStokt_depthdistributions(wbat,sa{4},depth_table,5:9,'vesselbeforeafter');
+
+%% Test if the depths are ok
+% for m=1:length(wbat)
+%     for k=1:length(wbat(m).transect)
+%         [wbat(m).transect(k).wbat.depth' wbat(m).transect(k).wbat.sabydepth]
+%         disp(num2str([i k]))    
+%         pause
+%     end
+% end
 
 %% Plot the results
 
@@ -62,19 +86,19 @@ for i=2:4
         % Vessel data
         plot(wbat(i).transect(j).vessel.sabydepth,wbat(i).transect(j).vessel.depth,'k')
         
-        meansa = [meansa wbat(i).transect(j).wbat.sabydepth];
-        [~,nils]=max(wbat(i).transect(j).wbat.sabydepth);
-            text(wbat(i).transect(j).wbat.sabydepth(nils),wbat(i).transect(j).wbat.depth(nils),num2str(j))
+%        meansa = [meansa wbat(i).transect(j).wbat.sabydepth];
+%        [~,nils]=max(wbat(i).transect(j).wbat.sabydepth);
+%            text(wbat(i).transect(j).wbat.sabydepth(nils),wbat(i).transect(j).wbat.depth(nils),num2str(j))
     end
-    plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{i},'LineWidth',2)
+%    plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{i},'LineWidth',2)
     % Metadata
-    title(['Rose ',num2str(i-1)])
+    title(['Sindre''s Rose ',num2str(i-1)])
     xlabel('sa (m^2nmi^{-2})')
     ylabel('depth')
     ylim([-100 10])
     subplot(2,2,1)
     hold on
-    plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{i},'LineWidth',2)
+ %   plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{i},'LineWidth',2)
 end
     title('Mean')
     xlabel('sa (m^2nmi^{-2})')
@@ -87,10 +111,10 @@ end
 figure
 %col={'r','b','r','g','c','c','c'};
 
-for i=5:8
+for i=5:9
     k=i-4;
     meansa=[];
-    subplot(2,2,k)
+    subplot(2,3,k)
     hold on
     for j=1:length(wbat(i).transect)
         % Wbat data
@@ -107,7 +131,7 @@ for i=5:8
     end
 %    plot(nanmean(meansa,2),wbat(i).transect(j).wbat.depth,col{i},'LineWidth',2)
     % Metadata
-    title(['Shale''s circle ',num2str(i-4)])
+    title(['Shale''s triangle',num2str(i-4)])
     xlabel('sa (m^2nmi^{-2})')
     ylabel('depth')
     ylim([-100 10])
