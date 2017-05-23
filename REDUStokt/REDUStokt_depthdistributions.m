@@ -33,6 +33,7 @@ for i=exprange
         if strcmp(type,'wbat')
             wbat(i).transect(j).wbat.sabydepth = mean(dum,2);
             wbat(i).transect(j).wbat.depth = -(dpth - (1:s(1))*5);
+            wbat(i).transect(j).wbat.transducerdepth = dpth;
             nilsind = wbat(i).transect(j).wbat.depth>0;
             if (sum(wbat(i).transect(j).wbat.sabydepth(nilsind))>0)
                 disp(['Wbat ',num2str(i),', transect ',num2str(j),', ',datestr(t0(1)),' ',datestr(t0(2))])
@@ -41,19 +42,22 @@ for i=exprange
                 disp(wbat(i).transect(j).wbat.depth(nilsind))
                 disp(wbat(i).transect(j).wbat.sabydepth(nilsind)')
             end
-            wbat(i).transect(j).wbat.sabydepth = wbat(i).transect(j).wbat.sabydepth(~nilsind);
-            wbat(i).transect(j).wbat.depth = wbat(i).transect(j).wbat.depth(~nilsind);
+            wbat(i).transect(j).wbat.sabydepth(nilsind)=NaN;
         elseif strcmp(type,'vessel')
             wbat(i).transect(j).vessel.sabydepth = mean(dum,2);
             wbat(i).transect(j).vessel.depth = -5*(1:size(dum,1))+2.5;
         elseif strcmp(type,'vesselbeforeafter')
             % Get the data before and after a wbat deplyment.
-            tind_before = (sa.time.datenum<t0(1))&(sa.time.datenum>(t0(1)-dt));
-            tind_after = (sa.time.datenum>t0(2))&(sa.time.datenum<(t0(2)+dt));
+            tind_before = find(sa.time.datenum<t0(1),4,'last');
+            tind_after = find(sa.time.datenum>t0(2),4,'first');
+            %tind_before = (sa.time.datenum<t0(1))&(sa.time.datenum>(t0(1)-dt));
+            %tind_after = (sa.time.datenum>t0(2))&(sa.time.datenum<(t0(2)+dt));
             wbat(i).transect(j).vesselbeforeafter.depth = -5*(1:size(dum,1))+2.5;
             wbat(i).transect(j).vesselbeforeafter.before.sabydepth = mean(sa.sa(:,tind_before),2);
             wbat(i).transect(j).vesselbeforeafter.after.sabydepth = mean(sa.sa(:,tind_after),2);
         end
     end
+    % Calculate average per deplyment
+    
 end
 

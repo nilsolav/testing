@@ -31,7 +31,7 @@ end
 % If row start and end points are not specified, define defaults
 if nargin <= 3
     startRow = 2;
-    endRow = 202;
+    endRow = 215;
 end
 
 %% Import the data, extracting spreadsheet dates in Excel serial date format
@@ -151,7 +151,7 @@ for i=1:length(tableout.Comment)
     expression = 'utsetting';
     ind2(i).utsetting = ~isempty(regexp(str,expression, 'once'));
     
-    mstr = '.+(\d+)';
+    mstr = '.+ (\d+)';
     shalecirclenum = regexp(str,mstr,'tokens');
     
     if ~isempty(shalecirclenum)&&ind2(i).shalecircle
