@@ -1,4 +1,98 @@
-function [tableout,deployment,time] = REDUStokt_readmetadata(workbookFile,sheetName,startRow,endRow)
+function [metadata,wbat2016,wbat2017] = REDUStokt_readmetadata
+
+metadata_file='D:\DATA\cruise_data\2017\S2017836_PVendla[3670]\CRUISE_LOG\S2017836_metadata.xlsx';
+[~,wbat2017,~] = REDUStokt_readmetadata2017(metadata_file);
+
+metadata_file2016='D:\DATA\cruise_data\2016\S2016844_PKINGSBAY_3223\CRUISE_LOG\S2016844_ToktLoggForHumansClean.xlsx';
+[wbat2016] = REDUStokt_readmetadata2016(metadata_file2016);
+
+% Depth table for WBAT deployments (taken from the echo sounder files)
+depth_table =[...
+    datenum(2016,05,03,00,00,00) -6;...
+    datenum(2016,05,05,00,00,00) 105;...
+    datenum(2017,05,14,19,30,00) 58.7;...
+    datenum(2017,05,14,22,00,00) 69.3;...
+    datenum(2017,05,15,15,19,00) 68;...
+    datenum(2017,05,16,03,30,00) 58;...
+    datenum(2017,05,16,18,30,00) 60.5;...
+    datenum(2017,05,17,15,10,00) 60.5;...
+    datenum(2017,05,18,19,50,00) 60;...
+    datenum(2017,05,19,01,59,00) 60;...
+    datenum(2017,05,20,16,50,00) 58.8;...
+    datenum(2017,05,21,14,20,00) 103];
+
+metadata={'year','deployment','transect','start','stop','depth'};
+k=2;
+
+% Kings Bay cruise
+for i=1:7
+    for j=1:length(wbat2016(i).transect)
+        metadata{k,1}=2016;
+        metadata{k,2}=wbat2016(i).deployment;
+        metadata{k,3}=wbat2016(i).transect(j).transect;
+        metadata{k,4}=datestr(wbat2016(i).transect(j).start.time,31);
+        metadata{k,5}=datestr(wbat2016(i).transect(j).stop.time,31);
+        metadata{k,6}=depth_table(find(depth_table(:,1)<datenum(wbat2016(i).transect(1).start.time),1, 'last' ),2);
+        k=k+1;
+    end
+end
+% Vendla cruise
+for i=1:4
+    for j=1:length(wbat2017(i).transect)
+        metadata{k,1}=2017;
+        metadata{k,2}=wbat2017(i).deployment;
+        metadata{k,3}=wbat2017(i).transect(j).transect;
+        metadata{k,4}=datestr(wbat2017(i).transect(j).start.time,31);
+        metadata{k,5}=datestr(wbat2017(i).transect(j).stop.time,31);
+        metadata{k,6}=depth_table(find(depth_table(:,1)<datenum(wbat2017(i).transect(1).start.time),1, 'last' ),2);
+        k=k+1;
+    end
+end
+
+% Shale's circles
+for i=5:10
+    metadata{k,1}=2017;
+    metadata{k,2}=wbat2017(i).transect(1).deployment;
+    metadata{k,3}=1;
+    metadata{k,4}=datestr(wbat2017(i).transect(1).start.time,31);
+    metadata{k,5}=datestr(wbat2017(i).transect(1).stop.time,31);
+    metadata{k,6}=depth_table(find(depth_table(:,1)<datenum(wbat2017(i).transect(1).start.time),1, 'last' ),2);
+    k=k+1;
+end
+end
+function [deployment] = REDUStokt_readmetadata2016(file)
+% This function reads the metadata freom the King Bay cruise
+
+[dat,dat1,dat2] = xlsread(file,'Transect');
+
+%% Get timing for Sindre's roses
+sz=size(dat2);
+
+for i=2:sz(1)
+    s=str2num(dat2{i,4}(2:end));
+    t=str2num(dat2{i,5}(2:end));
+    type = dat2{i,6};
+    time = datestr(datenum(dat2{i,8},'dd.mm.yyyy')+dat2{i,7});
+    if strcmp(type,'start')
+        deployment(s).deployment = s;
+        deployment(s).transect(t).transect = t;
+        deployment(s).transect(t).start.time = time;
+        deployment(s).transect(t).start.lat = dat2{i,2};
+        deployment(s).transect(t).start.lon = dat2{i,3};
+    elseif strcmp(type,'passing')
+        deployment(s).transect(t).stop.time = time;
+        deployment(s).transect(t).stop.lat = dat2{i,2};
+        deployment(s).transect(t).stop.lon = dat2{i,3};
+    elseif strcmp(type,'stop')
+        deployment(s).transect(t).passing.time = time;
+        deployment(s).transect(t).passing.lat = dat2{i,2};
+        deployment(s).transect(t).passing.lon = dat2{i,3};
+    end
+end
+end
+
+
+function [tableout,deployment,time] = REDUStokt_readmetadata2017(workbookFile,sheetName,startRow,endRow)
 %IMPORTFILE Import data from a spreadsheet
 %   DATA = IMPORTFILE(FILE) reads data from the first worksheet in the
 %   Microsoft Excel spreadsheet file named FILE and returns the data as a
@@ -172,3 +266,4 @@ end
 %% Get timing for transects
 
 
+end

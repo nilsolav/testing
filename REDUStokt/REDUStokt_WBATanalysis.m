@@ -11,10 +11,21 @@ clc
 close all
 % Data directories
 d0 = 'D:\DATA\cruise_data';
+
+% Vendla toktet
 file{1} = fullfile(d0,'\2017\S2017836_PVendla[3670]\OBSERVATION_PLATFORMS\WBAT\LSSS\Reports\ListUserFile04__F200000_T1_L0.0-0.0_HERR.txt');
 file{2} = fullfile(d0,'\2017\S2017836_PVendla[3670]\OBSERVATION_PLATFORMS\WBAT70kHz\LSSS\Reports\ListUserFile04__F070000_T1_L0.0-0.0_HERR.txt');
 %file{3} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\ListUserFile04__F070000_T1_L3729.7-5099.0_HERR.txt');
 file{4} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\ListUserFile04__F038000_T2_L3729.7-5300.0_HERR.txt');
+
+% Kings Bay toktet
+%file{5} = fullfile(d0,'\2016\S2016844_PKINGSBAY_3223\ACOUSTIC_DATA\LSSS\S1_PKings Bay[2142]\Reports\ListUserFile04__F038000_T2_L176.6-1504.9_SILD.txt');
+
+file{5} = fullfile(d0,'\2016\S2016844_PKINGSBAY_3223\ACOUSTIC_DATA\LSSS\S1_PKings Bay[2142]\Reports\ListUserFile20__L176.6-248.1.txt');
+
+%%
+[sa_tmp]=LSSSreader_readluf20(file{5})
+
 
 %% Import data
 % Import wbat sa data
@@ -29,22 +40,26 @@ file{4} = fullfile(d0,'\2017\S2017836_PVendla[3670]\ACOUSTIC_DATA\LSSS\Reports\L
 %38kHz
 [sa{4}.dat,sa{4}.sa,sa{4}.time] = REDUStokt_importluf4(file{4});
 
-%% Import metadata files
-metadata_file='D:\DATA\cruise_data\2017\S2017836_PVendla[3670]\CRUISE_LOG\S2017836_metadata.xlsx';
-[~,wbat,~] = REDUStokt_readmetadata(metadata_file);
+% Import Kings Bay data
+[sa{5}.dat,sa{5}.sa,sa{5}.time] = REDUStokt_importluf4(file{5});
 
-%% Depth table for WBAT deployments (taken from the echo sounder files)
-depth_table =[...
-    datenum(2017,05,14,19,30,00) 58.7;...
-    datenum(2017,05,14,22,00,00) 69.3;...
-    datenum(2017,05,15,15,19,00) 68;...
-    datenum(2017,05,16,03,30,00) 58;...
-    datenum(2017,05,16,18,30,00) 60.5;...
-    datenum(2017,05,17,15,10,00) 60.5;...
-    datenum(2017,05,18,19,50,00) 60;...
-    datenum(2017,05,19,01,59,00) 60;...
-    datenum(2017,05,20,16,50,00) 58.8;...
-    datenum(2017,05,21,14,20,00) 103];
+
+%% Import metadata files
+[metadata,wbat2016,wbat2017] = REDUStokt_readmetadata;
+
+%%
+fid = fopen('metadata.csv', 'w') ;
+formatSpec = '%u;%u;%u;%s;%s;%3.1f\n';
+fprintf(fid,'%s;',metadata{1,1:end-1})
+fprintf(fid,'%s\n',metadata{1,end})
+[nrows,ncols] = size(metadata);
+for row = 2:nrows
+    fprintf(fid,formatSpec,metadata{row,:});
+end
+fclose(fid) ;
+
+%%
+csvwrite('metadata.csv',metadata)
 
 
 
@@ -86,7 +101,7 @@ for i=2:4
         % Vessel data
         plot(wbat(i).transect(j).vessel.sabydepth,wbat(i).transect(j).vessel.depth,'k')
         [~,nils]=max(wbat(i).transect(j).wbat.sabydepth);
-%        text(wbat(i).transect(j).wbat.sabydepth(nils),wbat(i).transect(j).wbat.depth(nils),num2str(j))
+        %        text(wbat(i).transect(j).wbat.sabydepth(nils),wbat(i).transect(j).wbat.depth(nils),num2str(j))
         trdepth = [trdepth wbat(i).transect(j).wbat.transducerdepth];
     end
     % Plot the transducer dpeth
