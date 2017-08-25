@@ -37,4 +37,3 @@ depthDistPerChannel <- function(x, time=c(-Inf, Inf), by="acocat"){
   l <- lapply(s, function(x) by(x$sa, x$ch, sum))
   l
 }
-ER DETTE RIKTIG FIL!!!?????
